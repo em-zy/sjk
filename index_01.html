@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>职位数量变化趋势图</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+</head>
+<body>
+    <div id="main" style="width:800px;height:500px;"></div>
+    <script type="text/javascript">
+        var areadom=document.getElementById("main");
+        var resizeMonthContainer=function(){
+            areadom.style.width=$(".right-bottom").width()+'px';
+            areadom.style.height=$(".right-bottom").height()+'px';
+        };
+        resizeMonthContainer();
+        var areaChart=echarts.init(areadom,'walden');
+        var areaapp={};
+        areaoption=null;
+        var areadate=[];
+        var areadata=[];
+        $.ajax({
+            type: "GET",
+            url: "https://github.com/em-zy/sjk.git/zn_sjy.csv" ,// CSV 文件的 URL
+            dataType: "text",
+            success: function(data) {
+                var rows = data.split("\n");
+                for (var i = 0; i < rows.length; i++) {
+                    var cells = rows[i].split(",");
+                    areadate.push(cells[0]); // 第一列为日期
+                    areadata.push(parseInt(cells[1])); // 第二列为职位数量
+                }
+                areaoption={
+                    backgroundColor:'#fff',
+                    color:['#5ablef'],
+                    tooltip:{
+                        trigger:'axis',
+                        position:function(pt){
+                            return[pt[0],'10%'];
+                        }    
+                    },
+                    title:{
+                        left:'20',
+                        top:'5',
+                        text:'职位数量变化趋势图',
+                        textStyle:{color:"#333", fontSize: 20}
+                    },
+                    legend: {
+                        data: ['职位数量'],
+                        top: '30',
+                        textStyle: {color: '#333'}
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis:{
+                        type:'category',
+                        boundaryGap:false,
+                        data:areadate,
+                        axisLine: {
+                            lineStyle: {
+                                color: '#999'
+                            }
+                        },
+                        axisLabel:{
+                            color:'#333',
+                            interval: 0,
+                            rotate: 45
+                        }
+                    },
+                    yAxis:{
+                        type:'value',
+                        axisLine: {
+                            lineStyle: {
+                                color: '#999'
+                            }
+                        },
+                        axisLabel:{
+                            color:'#333'
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                        min: 0
+                    },
+                    dataZoom:[{
+                        type:'inside',
+                        start:0,
+                        end:100   
+                    },{
+                        start:0,
+                        end:100,
+                        handleIcon:'M10.7.11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4c19..5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4zv M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                        handleSize:'80%',
+                        handleStyle:{
+                            color:'#fff',
+                            shadowBlur:3,
+                            shadowColor:'rgba(0,0,0,0.6)',
+                            shadowOffsetX:2,
+                            shadowOffsetY:2
+                        }
+                    }],
+                    series:[
+                        {
+                            name:'职位数量',
+                            type:'line',
+                            smooth:true,
+                            symbol:'none',
+                            sampling:'average',
+                            itemStyle:{
+                                normal:{
+                                    color:'#5ablef',
+                                    width: 2
+                                }
+                            },
+                            areaStyle:{
+                                normal:{
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                        offset: 0,
+                                        color: '#a5d1f0'
+                                    }, {
+                                        offset: 1,
+                                        color: '#f0f6fc'
+                                    }])
+                                }
+                            },
+                            data:areadata
+                        }
+                    ]
+                };
+                if (areaoption && typeof areaoption==="object"){
+                    areaChart.setOption(areaoption,true);
+                    $(window).resize(function(){
+                        resizeMonthContainer();
+                        areaChart.resize();
+                    });            
+                }    
+            }
+        })
+    </script>
+</body>
+</html>
